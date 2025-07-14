@@ -12,8 +12,32 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [testApis, setTestApis] = useState([]);
+  const [showTestApis, setShowTestApis] = useState(false);
 
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
+
+  // Load test APIs from backend
+  const loadTestApis = async () => {
+    try {
+      const response = await axios.get(`${apiBaseUrl}/api/test-apis`);
+      setTestApis(response.data.apis);
+      setShowTestApis(true);
+    } catch (error) {
+      console.error('Failed to load test APIs:', error);
+    }
+  };
+
+  // Load a test API into the form
+  const loadTestApi = (api) => {
+    setRequest({
+      url: api.url,
+      method: api.method,
+      headers: [],
+      body: ''
+    });
+    setShowTestApis(false);
+  };
 
   const addHeader = () => {
     setRequest(prev => ({
@@ -307,6 +331,39 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
                   {preset === 'createUser' ? 'Create User' : preset.charAt(0).toUpperCase() + preset.slice(1)}
                 </button>
               ))}
+              
+              {/* Test APIs button */}
+              <button
+                onClick={loadTestApis}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.75rem',
+                  background: 'rgba(16, 185, 129, 0.3)',
+                  color: 'white',
+                  border: '1px solid rgba(16, 185, 129, 0.5)',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  fontWeight: '500',
+                  backdropFilter: 'blur(10px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.background = 'rgba(16, 185, 129, 0.4)';
+                  e.target.style.transform = 'translateY(-1px)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.background = 'rgba(16, 185, 129, 0.3)';
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
+                <svg style={{width: '0.875rem', height: '0.875rem'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Test APIs
+              </button>
             </div>
           </div>
         </div>
@@ -1098,6 +1155,142 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
           )}
         </div>
       </div>
+
+      {/* Test APIs Modal */}
+      {showTestApis && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '2rem'
+        }}>
+          <div style={{
+            background: darkMode ? '#1e293b' : 'white',
+            borderRadius: '1rem',
+            padding: '2rem',
+            maxWidth: '800px',
+            width: '100%',
+            maxHeight: '80vh',
+            overflow: 'auto',
+            border: darkMode ? '1px solid #334155' : '1px solid #e2e8f0',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem'
+            }}>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                margin: 0,
+                color: darkMode ? '#f1f5f9' : '#1e293b'
+              }}>
+                🧪 Test APIs
+              </h3>
+              <button
+                onClick={() => setShowTestApis(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  color: darkMode ? '#94a3b8' : '#64748b',
+                  padding: '0.5rem'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <p style={{
+              color: darkMode ? '#cbd5e1' : '#64748b',
+              margin: '0 0 1.5rem 0',
+              fontSize: '0.875rem'
+            }}>
+              These are reliable APIs that work well for testing DevFetch. Click any API to load it into the request builder.
+            </p>
+
+            <div style={{
+              display: 'grid',
+              gap: '1rem'
+            }}>
+              {testApis.map((api, index) => (
+                <div
+                  key={index}
+                  onClick={() => loadTestApi(api)}
+                  style={{
+                    padding: '1rem',
+                    border: darkMode ? '1px solid #334155' : '1px solid #e2e8f0',
+                    borderRadius: '0.75rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    background: darkMode ? '#334155' : '#f8fafc'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.background = darkMode ? '#475569' : '#f1f5f9';
+                    e.target.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.background = darkMode ? '#334155' : '#f8fafc';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    marginBottom: '0.5rem'
+                  }}>
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      background: api.method === 'GET' ? '#10b981' : '#3b82f6',
+                      color: 'white',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.75rem',
+                      fontWeight: '600'
+                    }}>
+                      {api.method}
+                    </span>
+                    <h4 style={{
+                      margin: 0,
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      color: darkMode ? '#f1f5f9' : '#1e293b'
+                    }}>
+                      {api.name}
+                    </h4>
+                  </div>
+                  <p style={{
+                    margin: '0 0 0.5rem 0',
+                    fontSize: '0.875rem',
+                    color: darkMode ? '#94a3b8' : '#64748b',
+                    fontFamily: 'monospace'
+                  }}>
+                    {api.url}
+                  </p>
+                  <p style={{
+                    margin: 0,
+                    fontSize: '0.875rem',
+                    color: darkMode ? '#cbd5e1' : '#6b7280'
+                  }}>
+                    {api.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
