@@ -58,26 +58,65 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
       .reduce((acc, h) => ({ ...acc, [h.key]: h.value }), {});
 
     try {
-      // Make direct HTTP request
-      const axiosConfig = {
-        method: request.method.toLowerCase(),
-        url: request.url,
-        headers: enabledHeaders,
-        timeout: 30000 // 30 second timeout
-      };
+      // Check if this is an external URL (not our backend)
+      const isExternalUrl = !request.url.startsWith(apiBaseUrl) && 
+                           (request.url.startsWith('http://') || request.url.startsWith('https://'));
 
-      // Add body for methods that support it
-      if (['post', 'put', 'patch'].includes(request.method.toLowerCase()) && request.body) {
-        try {
-          // Try to parse as JSON
-          axiosConfig.data = JSON.parse(request.body);
-        } catch {
-          // If not JSON, send as string
-          axiosConfig.data = request.body;
+      let res;
+      
+      if (isExternalUrl) {
+        // Use backend proxy for external URLs to avoid CORS issues
+        console.log('Using backend proxy for external URL:', request.url);
+        
+        const proxyData = {
+          url: request.url,
+          method: request.method,
+          headers: enabledHeaders
+        };
+
+        // Add body for methods that support it
+        if (['POST', 'PUT', 'PATCH'].includes(request.method.toUpperCase()) && request.body) {
+          try {
+            proxyData.body = JSON.parse(request.body);
+          } catch {
+            proxyData.body = request.body;
+          }
         }
-      }
 
-      const res = await axios(axiosConfig);
+        res = await axios.post(`${apiBaseUrl}/api/external`, proxyData, {
+          timeout: 30000
+        });
+        
+        // The response from proxy endpoint contains the actual response data
+        const actualResponse = res.data;
+        res = {
+          status: actualResponse.status,
+          statusText: actualResponse.statusText,
+          headers: actualResponse.headers,
+          data: actualResponse.data
+        };
+      } else {
+        // Make direct HTTP request for internal/same-origin requests
+        const axiosConfig = {
+          method: request.method.toLowerCase(),
+          url: request.url,
+          headers: enabledHeaders,
+          timeout: 30000 // 30 second timeout
+        };
+
+        // Add body for methods that support it
+        if (['post', 'put', 'patch'].includes(request.method.toLowerCase()) && request.body) {
+          try {
+            // Try to parse as JSON
+            axiosConfig.data = JSON.parse(request.body);
+          } catch {
+            // If not JSON, send as string
+            axiosConfig.data = request.body;
+          }
+        }
+
+        res = await axios(axiosConfig);
+      }
       const endTime = Date.now();
       const responseTime = endTime - startTime;
 
@@ -112,13 +151,28 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
         .filter(h => h.enabled && h.key && h.value)
         .reduce((acc, h) => ({ ...acc, [h.key]: h.value }), {});
 
-      const errorResponse = {
-        status: err.response?.status || 0,
-        statusText: err.response?.statusText || 'Error',
-        headers: err.response?.headers || {},
-        data: err.response?.data || { error: err.message },
-        responseTime: responseTime
-      };
+      let errorResponse;
+      
+      // Check if this was a proxy request error
+      if (err.response?.data?.error && err.response?.data?.url) {
+        // This is an error from our proxy endpoint
+        errorResponse = {
+          status: err.response.status || 500,
+          statusText: err.response.statusText || 'Proxy Error',
+          headers: err.response.headers || {},
+          data: err.response.data,
+          responseTime: responseTime
+        };
+      } else {
+        // This is a direct request error
+        errorResponse = {
+          status: err.response?.status || 0,
+          statusText: err.response?.statusText || 'Network Error',
+          headers: err.response?.headers || {},
+          data: err.response?.data || { error: err.message },
+          responseTime: responseTime
+        };
+      }
 
       setResponse(errorResponse);
       setError(errorResponse.data);
@@ -129,7 +183,7 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
         method: request.method,
         headers: enabledHeaders,
         body: request.body,
-        responseStatus: err.response?.status || 0,
+        responseStatus: errorResponse.status,
         responseTime: responseTime,
         response: errorResponse
       };

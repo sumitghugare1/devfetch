@@ -29,6 +29,68 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/httplab')
 // Routes
 app.use('/api/mock', mockRouter);
 
+// External API proxy endpoint
+app.post('/api/external', async (req, res) => {
+  try {
+    const { url, method = 'GET', headers = {}, body } = req.body;
+    const startTime = Date.now();
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+
+    const fetch = require('node-fetch');
+    const requestOptions = {
+      method: method.toUpperCase(),
+      headers: {
+        'User-Agent': 'DevFetch/1.0',
+        ...headers
+      },
+    };
+
+    // Add body for POST, PUT, PATCH requests
+    if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) && body) {
+      requestOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+      if (!requestOptions.headers['Content-Type']) {
+        requestOptions.headers['Content-Type'] = 'application/json';
+      }
+    }
+
+    console.log(`Proxying ${method.toUpperCase()} request to: ${url}`);
+    
+    const response = await fetch(url, requestOptions);
+    const responseText = await response.text();
+    const endTime = Date.now();
+    const responseTime = endTime - startTime;
+
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+    } catch {
+      responseData = responseText;
+    }
+
+    const result = {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      data: responseData,
+      responseTime,
+      size: responseText.length,
+      url: url
+    };
+
+    res.json(result);
+  } catch (error) {
+    console.error('External API proxy error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch from external API',
+      message: error.message,
+      url: req.body.url
+    });
+  }
+});
+
 // API endpoint for sending HTTP requests
 app.post('/api/request', async (req, res) => {
   try {
