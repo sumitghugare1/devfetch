@@ -1,0 +1,28 @@
+{
+  "name": "devfetch",
+  "version": "1.0.0",
+  "description": "DevFetch - Professional HTTP Client & API Testing Tool",
+  "main": "server/index.js",
+  "scripts": {
+    "server": "cd server && npm start",
+    "server:dev": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "client:build": "cd client && npm run build",
+    "dev": "concurrently \"npm run server:dev\" \"npm run client\"",
+    "start": "npm run server",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["devfetch", "http", "client", "api", "testing", "postman", "developer", "tools"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.16.3",
+    "node-fetch": "^2.7.0",
+    "nodemon": "^3.1.10"
+  }
+}
