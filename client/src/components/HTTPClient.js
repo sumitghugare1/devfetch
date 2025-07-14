@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
   const [request, setRequest] = useState({
-    url: 'http://localhost:5000/api/mock/test',
+    url: `${apiBaseUrl}/api/mock/test`,
     method: 'GET',
     headers: [],
     body: ''
@@ -100,25 +100,25 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
   const loadPreset = (preset) => {
     const presets = {
       test: {
-        url: 'http://localhost:5000/api/mock/test',
+        url: `${apiBaseUrl}/api/mock/test`,
         method: 'GET',
         headers: [],
         body: ''
       },
       users: {
-        url: 'http://localhost:5000/api/mock/users',
+        url: `${apiBaseUrl}/api/mock/users`,
         method: 'GET',
         headers: [],
         body: ''
       },
       createUser: {
-        url: 'http://localhost:5000/api/mock/users',
+        url: `${apiBaseUrl}/api/mock/users`,
         method: 'POST',
         headers: [{ key: 'Content-Type', value: 'application/json', enabled: true }],
         body: JSON.stringify({ name: 'John Doe', email: 'john@example.com', role: 'user' }, null, 2)
       },
       status: {
-        url: 'http://localhost:5000/api/mock/status/404',
+        url: `${apiBaseUrl}/api/mock/status/404`,
         method: 'GET',
         headers: [],
         body: ''
