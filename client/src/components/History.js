@@ -408,25 +408,25 @@ const History = ({ history, onClearHistory, onReloadHistory, darkMode }) => {
                       </div>
                       <div style={{
                         background: request.responseStatus >= 200 && request.responseStatus < 300 
-                          ? 'linear-gradient(135deg, #dcfce7, #bbf7d0)' 
+                          ? (darkMode ? 'linear-gradient(135deg, #064e3b, #059669)' : 'linear-gradient(135deg, #dcfce7, #bbf7d0)')
                           : request.responseStatus >= 400 
-                          ? 'linear-gradient(135deg, #fef2f2, #fecaca)' 
-                          : 'linear-gradient(135deg, #dbeafe, #93c5fd)',
+                          ? (darkMode ? 'linear-gradient(135deg, #7f1d1d, #dc2626)' : 'linear-gradient(135deg, #fef2f2, #fecaca)')
+                          : (darkMode ? 'linear-gradient(135deg, #1e3a8a, #3b82f6)' : 'linear-gradient(135deg, #dbeafe, #93c5fd)'),
                         color: request.responseStatus >= 200 && request.responseStatus < 300 
-                          ? '#166534' 
+                          ? (darkMode ? '#bbf7d0' : '#166534')
                           : request.responseStatus >= 400 
-                          ? '#dc2626' 
-                          : '#1d4ed8',
+                          ? (darkMode ? '#fecaca' : '#dc2626')
+                          : (darkMode ? '#93c5fd' : '#1d4ed8'),
                         padding: '0.375rem 0.875rem',
                         borderRadius: '0.5rem',
                         fontSize: '0.75rem',
                         fontWeight: '700',
                         border: `1px solid ${
                           request.responseStatus >= 200 && request.responseStatus < 300 
-                            ? '#bbf7d0' 
+                            ? (darkMode ? '#059669' : '#bbf7d0')
                             : request.responseStatus >= 400 
-                            ? '#fecaca' 
-                            : '#93c5fd'
+                            ? (darkMode ? '#dc2626' : '#fecaca')
+                            : (darkMode ? '#3b82f6' : '#93c5fd')
                         }`
                       }}>
                         {request.responseStatus}
@@ -681,25 +681,25 @@ const History = ({ history, onClearHistory, onReloadHistory, darkMode }) => {
                     </div>
                     <div style={{
                       background: selectedRequest.responseStatus >= 200 && selectedRequest.responseStatus < 300 
-                        ? 'linear-gradient(135deg, #dcfce7, #bbf7d0)' 
+                        ? (darkMode ? 'linear-gradient(135deg, #064e3b, #059669)' : 'linear-gradient(135deg, #dcfce7, #bbf7d0)')
                         : selectedRequest.responseStatus >= 400 
-                        ? 'linear-gradient(135deg, #fef2f2, #fecaca)' 
-                        : 'linear-gradient(135deg, #dbeafe, #93c5fd)',
+                        ? (darkMode ? 'linear-gradient(135deg, #7f1d1d, #dc2626)' : 'linear-gradient(135deg, #fef2f2, #fecaca)')
+                        : (darkMode ? 'linear-gradient(135deg, #1e3a8a, #3b82f6)' : 'linear-gradient(135deg, #dbeafe, #93c5fd)'),
                       color: selectedRequest.responseStatus >= 200 && selectedRequest.responseStatus < 300 
-                        ? '#166534' 
+                        ? (darkMode ? '#bbf7d0' : '#166534')
                         : selectedRequest.responseStatus >= 400 
-                        ? '#dc2626' 
-                        : '#1d4ed8',
+                        ? (darkMode ? '#fecaca' : '#dc2626')
+                        : (darkMode ? '#93c5fd' : '#1d4ed8'),
                       padding: '0.5rem 1rem',
                       borderRadius: '0.75rem',
                       fontSize: '0.875rem',
                       fontWeight: '700',
                       border: `2px solid ${
                         selectedRequest.responseStatus >= 200 && selectedRequest.responseStatus < 300 
-                          ? '#bbf7d0' 
+                          ? (darkMode ? '#059669' : '#bbf7d0')
                           : selectedRequest.responseStatus >= 400 
-                          ? '#fecaca' 
-                          : '#93c5fd'
+                          ? (darkMode ? '#dc2626' : '#fecaca')
+                          : (darkMode ? '#3b82f6' : '#93c5fd')
                       }`
                     }}>
                       {selectedRequest.responseStatus}
@@ -709,14 +709,14 @@ const History = ({ history, onClearHistory, onReloadHistory, darkMode }) => {
                   <div style={{
                     fontSize: '0.875rem',
                     fontWeight: '600',
-                    color: '#1e293b',
+                    color: darkMode ? '#f1f5f9' : '#1e293b',
                     marginBottom: '1rem',
                     wordBreak: 'break-all',
                     lineHeight: '1.5',
-                    background: 'white',
+                    background: darkMode ? '#1e293b' : 'white',
                     padding: '1rem',
                     borderRadius: '0.75rem',
-                    border: '1px solid #e2e8f0',
+                    border: `1px solid ${darkMode ? '#475569' : '#e2e8f0'}`,
                     fontFamily: 'monospace'
                   }}>
                     {selectedRequest.url}
@@ -760,7 +760,7 @@ const History = ({ history, onClearHistory, onReloadHistory, darkMode }) => {
                   <h4 style={{
                     fontSize: '1rem',
                     fontWeight: '700',
-                    color: '#1e293b',
+                    color: darkMode ? '#f1f5f9' : '#1e293b',
                     marginBottom: '1.5rem',
                     display: 'flex',
                     alignItems: 'center',
@@ -798,7 +798,7 @@ const History = ({ history, onClearHistory, onReloadHistory, darkMode }) => {
                   <h4 style={{
                     fontSize: '1rem',
                     fontWeight: '700',
-                    color: '#1e293b',
+                    color: darkMode ? '#f1f5f9' : '#1e293b',
                     marginBottom: '1.5rem',
                     display: 'flex',
                     alignItems: 'center',
@@ -839,7 +839,7 @@ const History = ({ history, onClearHistory, onReloadHistory, darkMode }) => {
                   <h4 style={{
                     fontSize: '1rem',
                     fontWeight: '700',
-                    color: '#1e293b',
+                    color: darkMode ? '#f1f5f9' : '#1e293b',
                     marginBottom: '1.5rem',
                     display: 'flex',
                     alignItems: 'center',
@@ -876,7 +876,7 @@ const History = ({ history, onClearHistory, onReloadHistory, darkMode }) => {
                 <h4 style={{
                   fontSize: '1rem',
                   fontWeight: '700',
-                  color: '#1e293b',
+                  color: darkMode ? '#f1f5f9' : '#1e293b',
                   marginBottom: '1.5rem',
                   display: 'flex',
                   alignItems: 'center',

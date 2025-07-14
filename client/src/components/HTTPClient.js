@@ -848,25 +848,25 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
                 <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center'}}>
                   <div style={{
                     background: response.status >= 200 && response.status < 300 
-                      ? 'linear-gradient(135deg, #dcfce7, #bbf7d0)' 
+                      ? (darkMode ? 'linear-gradient(135deg, #064e3b, #059669)' : 'linear-gradient(135deg, #dcfce7, #bbf7d0)')
                       : response.status >= 400 
-                      ? 'linear-gradient(135deg, #fef2f2, #fecaca)' 
-                      : 'linear-gradient(135deg, #dbeafe, #93c5fd)',
+                      ? (darkMode ? 'linear-gradient(135deg, #7f1d1d, #dc2626)' : 'linear-gradient(135deg, #fef2f2, #fecaca)')
+                      : (darkMode ? 'linear-gradient(135deg, #1e3a8a, #3b82f6)' : 'linear-gradient(135deg, #dbeafe, #93c5fd)'),
                     color: response.status >= 200 && response.status < 300 
-                      ? '#166534' 
+                      ? (darkMode ? '#bbf7d0' : '#166534')
                       : response.status >= 400 
-                      ? '#dc2626' 
-                      : '#1d4ed8',
+                      ? (darkMode ? '#fecaca' : '#dc2626')
+                      : (darkMode ? '#93c5fd' : '#1d4ed8'),
                     padding: '0.75rem 1.25rem',
                     borderRadius: '0.75rem',
                     fontSize: '1rem',
                     fontWeight: '700',
                     border: `2px solid ${
                       response.status >= 200 && response.status < 300 
-                        ? '#bbf7d0' 
+                        ? (darkMode ? '#059669' : '#bbf7d0')
                         : response.status >= 400 
-                        ? '#fecaca' 
-                        : '#93c5fd'
+                        ? (darkMode ? '#dc2626' : '#fecaca')
+                        : (darkMode ? '#3b82f6' : '#93c5fd')
                     }`,
                     display: 'flex',
                     alignItems: 'center',
