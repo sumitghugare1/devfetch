@@ -107,6 +107,10 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
     } catch (err) {
       const endTime = Date.now();
       const responseTime = endTime - startTime;
+      
+      const enabledHeaders = request.headers
+        .filter(h => h.enabled && h.key && h.value)
+        .reduce((acc, h) => ({ ...acc, [h.key]: h.value }), {});
 
       const errorResponse = {
         status: err.response?.status || 0,

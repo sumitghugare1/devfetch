@@ -360,9 +360,9 @@ function App() {
                       <div style={{fontSize: '0.875rem', color: darkMode ? '#cbd5e1' : '#64748b'}}>Web Framework</div>
                     </div>
                     <div style={{textAlign: 'center', padding: '1rem'}}>
-                      <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>🍃</div>
-                      <div style={{fontWeight: '600', color: darkMode ? '#f1f5f9' : '#1e293b'}}>MongoDB</div>
-                      <div style={{fontSize: '0.875rem', color: darkMode ? '#cbd5e1' : '#64748b'}}>Database</div>
+                      <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>💾</div>
+                      <div style={{fontWeight: '600', color: darkMode ? '#f1f5f9' : '#1e293b'}}>localStorage</div>
+                      <div style={{fontSize: '0.875rem', color: darkMode ? '#cbd5e1' : '#64748b'}}>Client Storage</div>
                     </div>
                   </div>
                 </div>
