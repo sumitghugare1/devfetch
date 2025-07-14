@@ -52,30 +52,86 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
     setError(null);
     setResponse(null);
 
-    try {
-      const enabledHeaders = request.headers
-        .filter(h => h.enabled && h.key && h.value)
-        .reduce((acc, h) => ({ ...acc, [h.key]: h.value }), {});
+    const startTime = Date.now();
+    const enabledHeaders = request.headers
+      .filter(h => h.enabled && h.key && h.value)
+      .reduce((acc, h) => ({ ...acc, [h.key]: h.value }), {});
 
-      const requestData = {
+    try {
+      // Make direct HTTP request
+      const axiosConfig = {
+        method: request.method.toLowerCase(),
+        url: request.url,
+        headers: enabledHeaders,
+        timeout: 30000 // 30 second timeout
+      };
+
+      // Add body for methods that support it
+      if (['post', 'put', 'patch'].includes(request.method.toLowerCase()) && request.body) {
+        try {
+          // Try to parse as JSON
+          axiosConfig.data = JSON.parse(request.body);
+        } catch {
+          // If not JSON, send as string
+          axiosConfig.data = request.body;
+        }
+      }
+
+      const res = await axios(axiosConfig);
+      const endTime = Date.now();
+      const responseTime = endTime - startTime;
+
+      const responseData = {
+        status: res.status,
+        statusText: res.statusText,
+        headers: res.headers,
+        data: res.data,
+        responseTime: responseTime
+      };
+
+      setResponse(responseData);
+
+      // Save to history
+      const historyEntry = {
         url: request.url,
         method: request.method,
         headers: enabledHeaders,
-        body: request.body || undefined
+        body: request.body,
+        responseStatus: res.status,
+        responseTime: responseTime,
+        response: responseData
       };
 
-      const startTime = Date.now();
-      const res = await axios.post(`${apiBaseUrl}/api/request`, requestData);
-      const endTime = Date.now();
+      onRequestComplete(historyEntry);
 
-      setResponse({
-        ...res.data,
-        actualResponseTime: endTime - startTime
-      });
-
-      onRequestComplete();
     } catch (err) {
-      setError(err.response?.data || { error: err.message });
+      const endTime = Date.now();
+      const responseTime = endTime - startTime;
+
+      const errorResponse = {
+        status: err.response?.status || 0,
+        statusText: err.response?.statusText || 'Error',
+        headers: err.response?.headers || {},
+        data: err.response?.data || { error: err.message },
+        responseTime: responseTime
+      };
+
+      setResponse(errorResponse);
+      setError(errorResponse.data);
+
+      // Save error to history too
+      const historyEntry = {
+        url: request.url,
+        method: request.method,
+        headers: enabledHeaders,
+        body: request.body,
+        responseStatus: err.response?.status || 0,
+        responseTime: responseTime,
+        response: errorResponse
+      };
+
+      onRequestComplete(historyEntry);
+
     } finally {
       setLoading(false);
     }
@@ -87,14 +143,6 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
     } catch {
       return text;
     }
-  };
-
-  const getStatusColor = (status) => {
-    if (status >= 200 && status < 300) return 'text-green-600 bg-green-50 border-green-200';
-    if (status >= 300 && status < 400) return 'text-blue-600 bg-blue-50 border-blue-200';
-    if (status >= 400 && status < 500) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    if (status >= 500) return 'text-red-600 bg-red-50 border-red-200';
-    return 'text-gray-600 bg-gray-50 border-gray-200';
   };
 
   const loadPreset = (preset) => {
@@ -214,7 +262,6 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
               fontWeight: '700',
               color: darkMode ? '#f1f5f9' : '#1e293b',
               marginBottom: '0.75rem',
-              display: 'flex',
               alignItems: 'center',
               gap: '0.5rem'
             }}>
@@ -528,12 +575,11 @@ const HTTPClient = ({ onRequestComplete, apiBaseUrl, darkMode }) => {
           {['POST', 'PUT', 'PATCH'].includes(request.method) && (
             <div>
               <label style={{
-                display: 'block', 
+                display: 'flex', 
                 fontSize: '0.875rem', 
                 fontWeight: '700', 
                 color: darkMode ? '#f1f5f9' : '#1e293b', 
                 marginBottom: '1rem',
-                display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>

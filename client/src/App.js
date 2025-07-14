@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import HTTPClient from './components/HTTPClient';
 import History from './components/History';
 import './App.css';
@@ -23,12 +22,23 @@ function App() {
     }
   }, []);
 
-  const loadHistory = async () => {
+  const loadHistory = () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/history`);
-      setHistory(response.data);
+      const savedHistory = localStorage.getItem('devfetch-history');
+      if (savedHistory) {
+        setHistory(JSON.parse(savedHistory));
+      }
     } catch (error) {
-      console.error('Failed to load history:', error);
+      console.error('Failed to load history from localStorage:', error);
+      setHistory([]);
+    }
+  };
+
+  const saveHistoryToStorage = (newHistory) => {
+    try {
+      localStorage.setItem('devfetch-history', JSON.stringify(newHistory));
+    } catch (error) {
+      console.error('Failed to save history to localStorage:', error);
     }
   };
 
@@ -44,12 +54,28 @@ function App() {
     }
   };
 
-  const clearHistory = async () => {
+  const clearHistory = () => {
     try {
-      await axios.delete(`${API_BASE_URL}/api/history`);
+      localStorage.removeItem('devfetch-history');
       setHistory([]);
     } catch (error) {
       console.error('Failed to clear history:', error);
+    }
+  };
+
+  const handleRequestComplete = (requestData) => {
+    try {
+      const newRequest = {
+        _id: Date.now().toString(), // Simple ID generation
+        ...requestData,
+        timestamp: new Date().toISOString()
+      };
+      
+      const updatedHistory = [newRequest, ...history];
+      setHistory(updatedHistory);
+      saveHistoryToStorage(updatedHistory);
+    } catch (error) {
+      console.error('Failed to save request to history:', error);
     }
   };
 
@@ -175,14 +201,13 @@ function App() {
         {/* Main Content */}
         <main className="main-content">
           {activeTab === 'client' && (
-            <HTTPClient onRequestComplete={loadHistory} apiBaseUrl={API_BASE_URL} darkMode={darkMode} />
+            <HTTPClient onRequestComplete={handleRequestComplete} apiBaseUrl={API_BASE_URL} darkMode={darkMode} />
           )}
           {activeTab === 'history' && (
             <History 
               history={history} 
               onClearHistory={clearHistory}
               onReloadHistory={loadHistory}
-              apiBaseUrl={API_BASE_URL}
               darkMode={darkMode}
             />
           )}

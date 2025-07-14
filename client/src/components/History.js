@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 
-const History = ({ history, onClearHistory, onReloadHistory, apiBaseUrl, darkMode }) => {
+const History = ({ history, onClearHistory, onReloadHistory, darkMode }) => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const deleteRequest = async (id) => {
+  const deleteRequest = (id) => {
     try {
-      await axios.delete(`${apiBaseUrl}/api/history/${id}`);
+      const updatedHistory = history.filter(req => req._id !== id);
+      localStorage.setItem('devfetch-history', JSON.stringify(updatedHistory));
       onReloadHistory();
       if (selectedRequest && selectedRequest._id === id) {
         setSelectedRequest(null);
